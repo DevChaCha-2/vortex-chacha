@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Vortex Chacha</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-form">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <span class="logo-icon">🤖</span>
+                    <h2>VORTEX CHACHA</h2>
+                </div>
+                <p class="auth-subtitle">Acesse sua conta</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">
+                        <span class="label-icon">📧</span>
+                        Email:
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <span class="label-icon">🔒</span>
+                        Senha:
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">Entrar no Sistema</span>
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Não tem uma conta? <a href="/register">Cadastre-se</a></p>
+                <p><a href="/">← Voltar ao início</a></p>
+            </div>
+            
+            <div id="message" class="message"></div>
+        </div>
+        
+        <div class="auth-info">
+            <div class="info-card">
+                <h3>🔐 Segurança Garantida</h3>
+                <p>Seus dados estão protegidos com criptografia de ponta</p>
+            </div>
+            <div class="info-card">
+                <h3>⚡ Acesso Instantâneo</h3>
+                <p>Conecte-se rapidamente ao Vortex Chacha</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = loginBtn.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            
+            // Mostrar loading
+            loginBtn.classList.add('loading');
+            btnText.textContent = 'Conectando...';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('✅ Login realizado com sucesso! Redirecionando...', 'success');
+                    
+                    // Efeito de sucesso
+                    loginBtn.style.background = 'var(--neon-green)';
+                    loginBtn.style.color = 'var(--terminal-bg)';
+                    btnText.textContent = 'Conectado!';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 1500);
+                } else {
+                    showMessage(`❌ ${data.error}`, 'error');
+                    // Resetar botão
+                    loginBtn.classList.remove('loading');
+                    btnText.textContent = originalText;
+                }
+            } catch (error) {
+                showMessage('❌ Erro ao fazer login. Tente novamente.', 'error');
+                // Resetar botão
+                loginBtn.classList.remove('loading');
+                btnText.textContent = originalText;
+            }
+        });
+
+        // Efeito de foco nos inputs
+        document.querySelectorAll('.form-group input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+
+        // Animação de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const authForm = document.querySelector('.auth-form');
+            const infoCards = document.querySelectorAll('.info-card');
+            
+            authForm.style.opacity = '0';
+            authForm.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                authForm.style.transition = 'all 0.8s ease';
+                authForm.style.opacity = '1';
+                authForm.style.transform = 'translateY(0)';
+            }, 100);
+            
+            infoCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateX(0)';
+                }, 300 + (index * 200));
+            });
+        });
+    </script>
+</body>
+</html> 

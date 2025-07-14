@@ -1,0 +1,2161 @@
+:root {
+    --neon-green: #0f0;
+    --neon-blue: #0ff;
+    --dark-bg: #0a0a0a;
+    --terminal-bg: #000000;
+    --text-glow: 0 0 10px var(--neon-green);
+    --sidebar-width: 260px;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--neon-green);
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Permitir scroll nas páginas de autenticação e index */
+body:not(.chat-page) {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.03) 0px,
+    rgba(0, 255, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Barra lateral */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--terminal-bg);
+    border-right: 1px solid var(--neon-green);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--neon-green);
+}
+
+.new-chat {
+    width: 190px;
+    max-width: 90vw;
+    min-width: 100px;
+    margin: 0 auto;
+    display: block;
+}
+
+.new-chat:hover {
+    background: var(--neon-green);
+    color: var(--terminal-bg);
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+.conversations-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.conversation-item {
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 0.9em;
+}
+
+.conversation-item:hover {
+    border-color: var(--neon-green);
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.conversation-item.active {
+    border-color: var(--neon-green);
+    background: rgba(0, 255, 0, 0.2);
+}
+
+.conv-actions {
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.conversation-item:hover .conv-actions {
+    opacity: 1;
+}
+
+.rename-conv,
+.delete-conv {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.rename-conv {
+    color: var(--neon-green);
+}
+
+.rename-conv:hover {
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+.delete-conv {
+    color: #ff3333;
+}
+
+.delete-conv:hover {
+    color: #ff6666;
+    text-shadow: 0 0 10px #ff3333;
+}
+
+/* Ajustar container do título */
+.conv-title-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-width: 0;
+    margin-right: 10px;
+}
+
+.conv-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 5px;
+    min-width: 0;
+}
+
+.conv-title:hover {
+    color: var(--neon-green);
+    text-shadow: var(--text-glow);
+}
+
+.conv-title-input {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--terminal-bg);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+    padding: 2px 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    width: calc(100% - 10px);
+    outline: none;
+    z-index: 1; /* Garantir que fique sobre outros elementos */
+}
+
+.conv-title-input:focus {
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+.conversation-item.renaming .conv-title {
+    visibility: hidden;
+}
+
+.conversation-item.renaming .conv-title-input {
+    display: block;
+}
+
+.conv-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ajustar o botão de deletar para não interferir com a renomeação */
+.delete-conv {
+    background: none;
+    border: none;
+    color: #ff3333;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 1.2em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-left: 5px;
+    z-index: 2; /* Garantir que fique sobre o input de renomeação */
+}
+
+.conversation-item:hover .delete-conv {
+    opacity: 1;
+}
+
+.delete-conv:hover {
+    color: #ff6666;
+    text-shadow: 0 0 10px #ff3333;
+}
+
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid var(--neon-green);
+}
+
+/* Container principal */
+.main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--terminal-bg);
+    position: relative;
+    overflow: hidden;
+    margin: 20px;
+    border: 1px solid var(--neon-green);
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.chat-container::before {
+    content: "VORTEX CHACHA TERMINAL v1.0";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px;
+    background: var(--neon-green);
+    color: var(--terminal-bg);
+    font-size: 12px;
+    text-align: center;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos das mensagens */
+.message {
+    max-width: 90%;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
+    word-wrap: break-word;
+    position: relative;
+    animation: fadeIn 0.3s ease-in;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-message {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid #00ff00;
+    margin-left: auto;
+    margin-right: 0;
+    color: #fff;
+    align-self: flex-end;
+}
+
+.ai-message {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #0066ff;
+    margin-right: auto;
+    margin-left: 0;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    align-self: flex-start;
+}
+
+.message-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    width: 100%;
+}
+
+.message-wrapper.user {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.message-wrapper.assistant {
+    justify-content: flex-start;
+}
+
+.profile-image {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+    border: 1px solid var(--neon-green);
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-content {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    border-radius: 8px;
+    background: rgba(0, 255, 0, 0.05);
+    position: relative;
+    max-width: 80%;
+}
+
+.message.assistant .message-content {
+    border-color: var(--neon-blue);
+    background: rgba(0, 255, 255, 0.05);
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    padding: 24px;
+}
+
+/* Formatação específica para textos da IA - estilo ChatGPT */
+.message.assistant .message-content p {
+    margin: 0 0 16px 0;
+    color: #ffffff;
+}
+
+.message.assistant .message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.message.assistant .message-content h1,
+.message.assistant .message-content h2,
+.message.assistant .message-content h3,
+.message.assistant .message-content h4,
+.message.assistant .message-content h5,
+.message.assistant .message-content h6 {
+    color: #ffffff;
+    margin: 24px 0 16px 0;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.message.assistant .message-content h1 {
+    font-size: 24px;
+}
+
+.message.assistant .message-content h2 {
+    font-size: 20px;
+}
+
+.message.assistant .message-content h3 {
+    font-size: 18px;
+}
+
+.message.assistant .message-content ul,
+.message.assistant .message-content ol {
+    margin: 16px 0;
+    padding-left: 24px;
+    color: #ffffff;
+}
+
+.message.assistant .message-content li {
+    margin: 8px 0;
+    color: #ffffff;
+}
+
+.message.assistant .message-content blockquote {
+    border-left: 4px solid var(--neon-blue);
+    margin: 16px 0;
+    padding: 0 16px;
+    color: #cccccc;
+    font-style: italic;
+}
+
+.message.assistant .message-content strong,
+.message.assistant .message-content b {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.message.assistant .message-content em,
+.message.assistant .message-content i {
+    font-style: italic;
+    color: #ffffff;
+}
+
+.message.assistant .message-content a {
+    color: var(--neon-blue);
+    text-decoration: underline;
+}
+
+.message.assistant .message-content a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+/* Estilo para a mensagem de suporte do Dev Chacha */
+.message.assistant .message-content hr {
+    border: none;
+    border-top: 1px solid #404040;
+    margin: 20px 0;
+}
+
+.message.assistant .message-content p:last-child {
+    margin-bottom: 0;
+    padding: 12px 16px;
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    color: var(--neon-blue);
+    font-weight: 600;
+    text-align: center;
+    margin-top: 16px;
+}
+
+.message.assistant .message-content p:last-child strong {
+    color: var(--neon-blue);
+    text-shadow: 0 0 8px var(--neon-blue);
+}
+
+.message-header {
+    color: var(--neon-blue);
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.user .message-content {
+    margin-left: auto;
+    margin-right: 0;
+    align-self: flex-end;
+}
+
+.assistant .message-content {
+    margin-right: auto;
+    margin-left: 0;
+    align-self: flex-start;
+}
+
+/* Remover o pseudo-elemento anterior que mostrava o VORTEX> */
+.message-content::before {
+    display: none;
+}
+
+.input-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid var(--neon-green);
+  padding-top: 20px;
+}
+
+#user-input {
+  flex: 1;
+  background: var(--terminal-bg);
+  border: 1px solid var(--neon-green);
+  color: var(--neon-green);
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  resize: none;
+  outline: none;
+}
+
+#user-input:focus {
+  box-shadow: 0 0 10px var(--neon-green);
+}
+
+button {
+  background: var(--terminal-bg);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: var(--neon-green);
+  color: var(--terminal-bg);
+  box-shadow: 0 0 15px var(--neon-green);
+}
+
+/* Código com estilo ChatGPT */
+pre {
+  background: #1e1e1e !important;
+  border: 1px solid #404040 !important;
+  border-radius: 6px;
+  padding: 16px !important;
+  margin: 16px 0;
+  position: relative;
+  overflow-x: auto;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Ajuste específico para blocos de código nas mensagens da IA */
+.message.assistant .message-content pre {
+  padding: 48px 16px 16px 16px !important;
+  margin: 20px 0;
+}
+
+pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  border-radius: 6px 6px 0 0;
+}
+
+pre::after {
+  content: '● ● ●';
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  color: #666;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+code {
+  color: #e6e6e6 !important;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+  font-size: 14px;
+  background: transparent;
+}
+
+/* Código inline */
+.message.assistant .message-content code:not(pre code) {
+  background: #2d2d2d;
+  color: #e6e6e6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid #404040;
+}
+
+/* Animações */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-blue);
+}
+
+/* Efeito de glitch no título */
+.chat-container::after {
+  content: "SECURE CONNECTION ESTABLISHED";
+  position: absolute;
+  top: 25px;
+  right: 10px;
+  font-size: 10px;
+  color: var(--neon-green);
+  animation: glitch 2s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* Botão de limpar histórico */
+.clear-history {
+    background: var(--terminal-bg);
+    color: #ff3333;
+    border: 1px solid #ff3333;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.clear-history:hover {
+    background: #ff3333;
+    color: var(--terminal-bg);
+    box-shadow: 0 0 15px #ff3333;
+}
+
+/* Confirmação de limpeza do histórico */
+.confirm-dialog {
+    background: var(--terminal-bg);
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+/* Estilos para blocos de código */
+.code-block {
+    margin: 1rem 0;
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #333;
+    width: 100%;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #252525;
+    border-bottom: 1px solid #333;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.code-language {
+    color: #0f0;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: visible;
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+.copy-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #0f0;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.copy-button:hover {
+    background: #444;
+    border-color: #555;
+}
+
+.copy-button.copied {
+    background: #1a472a;
+    border-color: #2a673a;
+}
+
+.copy-icon {
+    font-size: 1em;
+}
+
+pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    background: #1a1a1a;
+    position: relative;
+}
+
+pre code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+    line-height: 1.8;
+    color: #0f0;
+    display: block;
+    margin-top: 35px; /* Espaço significativo no topo */
+    padding-bottom: 16px;
+}
+
+/* Adiciona uma linha sutil para separar o cabeçalho do conteúdo */
+pre::before {
+    content: '';
+    position: absolute;
+    top: 35px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(51, 51, 51, 0.5);
+}
+
+.inline-code {
+    background: #252525;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #0f0;
+    border: 1px solid #333;
+}
+
+/* Personalização do scrollbar */
+pre::-webkit-scrollbar {
+    height: 8px;
+    background: #1a1a1a;
+}
+
+pre::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #0f0;
+    background: rgba(0, 255, 0, 0.05);
+    border-radius: 10px;
+    margin: 20px;
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    animation: fadeIn 0.5s ease-in;
+}
+
+.welcome-message h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.welcome-message p {
+    font-size: 1.1em;
+    line-height: 1.5;
+    color: rgba(0, 255, 0, 0.8);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== ESTILOS PARA PÁGINAS DE AUTENTICAÇÃO E INDEX ===== */
+
+/* Container principal para páginas de autenticação */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header da página inicial */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--neon-green);
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+    animation: fadeIn 0.8s ease-in;
+}
+
+header h1 {
+    font-size: 3em;
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 20px var(--neon-green);
+    animation: glitch 3s infinite;
+}
+
+header p {
+    font-size: 1.2em;
+    color: rgba(0, 255, 0, 0.8);
+    margin: 0;
+}
+
+/* Seção hero da página inicial */
+.hero {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid var(--neon-green);
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0, 255, 0, 0.2);
+    animation: fadeIn 1s ease-in 0.2s both;
+}
+
+.hero h2 {
+    font-size: 2.5em;
+    margin: 0 0 20px 0;
+    color: var(--neon-green);
+    text-shadow: 0 0 15px var(--neon-green);
+}
+
+.hero p {
+    font-size: 1.3em;
+    color: rgba(0, 255, 0, 0.9);
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+/* Botões */
+.buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px 0;
+    flex-wrap: wrap;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Versão desktop - botões mais largos */
+@media (min-width: 769px) {
+    .buttons {
+        max-width: 600px;
+    }
+    
+    .buttons .btn {
+        width: 200px;
+    }
+}
+
+.btn {
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-family: 'Courier New', monospace;
+    text-decoration: none;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    width: 160px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Exceção para botões em formulários de autenticação */
+.auth-form .btn {
+    width: 100% !important;
+    min-width: 350px !important;
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 1.1em;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: var(--terminal-bg);
+    color: var(--neon-green);
+    border-color: var(--neon-green);
+}
+
+.btn-primary:hover {
+    background: var(--neon-green);
+    color: var(--terminal-bg);
+    box-shadow: 0 0 25px var(--neon-green);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--terminal-bg);
+    color: var(--neon-blue);
+    border-color: var(--neon-blue);
+}
+
+.btn-secondary:hover {
+    background: var(--neon-blue);
+    color: var(--terminal-bg);
+    box-shadow: 0 0 25px var(--neon-blue);
+    transform: translateY(-2px);
+}
+
+.note {
+    font-size: 1em;
+    color: rgba(0, 255, 0, 0.7);
+    font-style: italic;
+    margin-top: 20px;
+}
+
+/* Seção de funcionalidades */
+.features {
+    margin-top: 50px;
+    animation: fadeIn 1s ease-in 0.4s both;
+}
+
+.features h3 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: var(--neon-green);
+    text-shadow: 0 0 15px var(--neon-green);
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.feature-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--neon-green);
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.feature-card:hover::before {
+    transform: translateX(100%);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 255, 0, 0.3);
+    border-color: var(--neon-blue);
+}
+
+.feature-card h4 {
+    font-size: 1.3em;
+    margin: 0 0 15px 0;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.feature-card p {
+    color: rgba(0, 255, 0, 0.8);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Formulários de autenticação */
+.auth-form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid var(--neon-green);
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0, 255, 0, 0.2);
+    animation: fadeIn 0.8s ease-in;
+}
+
+.auth-form h2 {
+    text-align: center;
+    font-size: 2.5em;
+    margin: 0 0 30px 0;
+    color: var(--neon-green);
+    text-shadow: 0 0 15px var(--neon-green);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--neon-green);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    background: var(--terminal-bg);
+    border: 2px solid var(--neon-green);
+    border-radius: 8px;
+    color: var(--neon-green);
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.form-group input::placeholder {
+    color: rgba(0, 255, 0, 0.5);
+}
+
+
+
+/* Links de autenticação */
+.auth-links {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.auth-links p {
+    margin: 10px 0;
+    color: rgba(0, 255, 0, 0.8);
+}
+
+.auth-links a {
+    color: var(--neon-blue);
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.auth-links a:hover {
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+/* Mensagens de feedback */
+.message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message.success {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+}
+
+.message.error {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff3333;
+    color: #ff3333;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .hero h2 {
+        font-size: 1.8em;
+    }
+    
+    .hero p {
+        font-size: 1.1em;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 240px;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-form {
+        margin: 20px;
+        padding: 30px 20px;
+        max-width: 100%;
+    }
+    
+    .auth-form .btn {
+        min-width: 280px !important;
+    }
+    
+    .auth-form h2 {
+        font-size: 2em;
+    }
+}
+
+/* Efeitos especiais para páginas de autenticação */
+.auth-form::before {
+    content: 'VORTEX CHACHA';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--terminal-bg);
+    padding: 0 20px;
+    font-size: 0.8em;
+    color: var(--neon-green);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+/* Animação de loading para botões */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== ESTILOS ADICIONAIS PARA INDEX.HTML ===== */
+
+/* Status indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--neon-green);
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-green);
+    animation: blink 2s infinite;
+}
+
+.status-text {
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+/* Hero features */
+.hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--neon-green);
+    border-radius: 25px;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.hero-feature:hover {
+    background: rgba(0, 255, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+}
+
+.feature-icon {
+    font-size: 1.2em;
+}
+
+/* Botão icons */
+.btn-icon {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Feature cards melhorados */
+.feature-icon-large {
+    font-size: 3em;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.feature-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tag {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--neon-green);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    color: var(--neon-green);
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    background: rgba(0, 255, 0, 0.2);
+    transform: scale(1.05);
+}
+
+/* Tech stack */
+.tech-stack {
+    margin-top: 60px;
+    animation: fadeIn 1s ease-in 0.6s both;
+}
+
+.tech-stack h3 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: var(--neon-green);
+    text-shadow: 0 0 15px var(--neon-green);
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.tech-item {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tech-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.tech-item:hover::before {
+    transform: translateX(100%);
+}
+
+.tech-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
+    border-color: var(--neon-green);
+}
+
+.tech-name {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+    margin-bottom: 8px;
+}
+
+.tech-desc {
+    display: block;
+    font-size: 0.9em;
+    color: rgba(0, 255, 255, 0.8);
+}
+
+/* Footer */
+footer {
+    margin-top: 60px;
+    padding: 30px 0;
+    border-top: 1px solid rgba(0, 255, 0, 0.3);
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-content p {
+    color: rgba(0, 255, 0, 0.8);
+    margin: 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9em;
+}
+
+.footer-links span {
+    color: rgba(0, 255, 0, 0.7);
+}
+
+.status-online {
+    color: var(--neon-green);
+    font-weight: bold;
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+/* Responsividade para novos elementos */
+@media (max-width: 768px) {
+    .hero-features {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .hero-feature {
+        width: 100%;
+        max-width: 250px;
+        justify-content: center;
+    }
+    
+    .tech-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .feature-tags {
+        justify-content: center;
+    }
+    
+    .tag {
+        font-size: 0.7em;
+    }
+}
+
+/* Efeitos de hover melhorados */
+.feature-card:hover .feature-icon-large {
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Efeito de glitch melhorado */
+header h1 {
+    position: relative;
+}
+
+header h1::before,
+header h1::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+header h1::before {
+    animation: glitch-1 2s infinite;
+    color: #ff0000;
+    z-index: -1;
+}
+
+header h1::after {
+    animation: glitch-2 2s infinite;
+    color: #00ffff;
+    z-index: -2;
+}
+
+@keyframes glitch-1 {
+    0%, 14%, 15%, 49%, 50%, 99%, 100% {
+        transform: translate(0);
+    }
+    15%, 49% {
+        transform: translate(-2px, 2px);
+    }
+}
+
+@keyframes glitch-2 {
+    0%, 20%, 21%, 62%, 63%, 99%, 100% {
+        transform: translate(0);
+    }
+    21%, 62% {
+        transform: translate(2px, -2px);
+    }
+}
+
+/* ===== ESTILOS ADICIONAIS PARA PÁGINAS DE AUTENTICAÇÃO ===== */
+
+/* Auth header */
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.logo-icon {
+    font-size: 2.5em;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.auth-header h2 {
+    font-size: 2.2em;
+    margin: 0;
+    color: var(--neon-green);
+    text-shadow: 0 0 15px var(--neon-green);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.auth-subtitle {
+    color: rgba(0, 255, 0, 0.8);
+    font-size: 1.1em;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Label icons */
+.label-icon {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Form group focused state */
+.form-group.focused label {
+    color: var(--neon-blue);
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.form-group.focused input {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+/* Password strength indicator */
+.password-strength {
+    margin-top: 8px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Auth info cards */
+.auth-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 40px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info-card {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--neon-blue);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.info-card:hover::before {
+    transform: translateX(100%);
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
+    border-color: var(--neon-green);
+}
+
+.info-card h3 {
+    font-size: 1.2em;
+    margin: 0 0 10px 0;
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+.info-card p {
+    color: rgba(0, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Botão com loading melhorado */
+.btn.loading .btn-text {
+    opacity: 0;
+}
+
+.btn.loading .btn-icon {
+    opacity: 0;
+}
+
+/* Efeitos de sucesso */
+.btn.success {
+    background: var(--neon-green) !important;
+    color: var(--terminal-bg) !important;
+    box-shadow: 0 0 25px var(--neon-green) !important;
+}
+
+/* Responsividade para auth info */
+@media (max-width: 768px) {
+    .auth-info {
+        margin-top: 30px;
+        padding: 0 20px;
+    }
+    
+    .info-card {
+        padding: 15px;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.8em;
+        letter-spacing: 2px;
+    }
+    
+    .logo-icon {
+        font-size: 2em;
+    }
+}
+
+/* Efeitos de entrada para auth info */
+.auth-info .info-card {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+/* Melhorias nos inputs */
+.form-group input::placeholder {
+    color: rgba(0, 255, 0, 0.4);
+    font-style: italic;
+}
+
+.form-group input:focus::placeholder {
+    color: rgba(0, 255, 255, 0.6);
+}
+
+/* Efeito de validação visual */
+.form-group input.valid {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.form-group input.invalid {
+    border-color: #ff3333;
+    box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+}
+
+/* Animação de shake para erros */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.form-group.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Efeito de glitch no logo */
+.auth-logo:hover .logo-icon {
+    animation: glitch-logo 0.3s ease-in-out;
+}
+
+@keyframes glitch-logo {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(-2px, -2px); }
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .sidebar {
+    width: 100vw;
+    min-width: unset;
+    max-width: unset;
+    height: auto;
+    border-right: none;
+    border-bottom: 2px solid var(--neon-green);
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header, .sidebar-footer {
+    width: 100%;
+    text-align: center;
+  }
+
+  .conversations-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    width: 100vw;
+    padding: 0 5px;
+  }
+
+  .conversation-item {
+    min-width: 160px;
+    margin: 5px 5px;
+    font-size: 1em;
+  }
+
+  .main-container {
+    width: 100vw;
+    min-width: unset;
+    padding: 0;
+  }
+
+  .chat-container {
+    width: 100vw;
+    min-width: unset;
+    max-width: 100vw;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chat-messages {
+    min-height: 40vh;
+    max-height: 50vh;
+    font-size: 1em;
+    padding: 10px 2vw;
+  }
+
+  .input-container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 2vw;
+  }
+
+  #user-input {
+    font-size: 1.1em;
+    min-height: 40px;
+    max-height: 100px;
+  }
+
+  button, .btn, .btn-primary, .btn-secondary {
+    font-size: 1.1em;
+    padding: 14px 0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+  .clear-history {
+    width: 60vw;
+    min-width: 90px;
+    max-width: 80vw;
+    font-size: 1em;
+    padding: 10px 0;
+    margin: 10px auto 0 auto;
+    display: block;
+  }
+  .new-chat {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    text-align: center;
+  }
+}
+
+.go-to-conversations {
+  display: none;
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  background: var(--terminal-bg);
+  color: var(--neon-green);
+  border: 2px solid var(--neon-green);
+  border-radius: 50px;
+  padding: 12px 22px;
+  font-size: 1.1em;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 0 10px var(--neon-green);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.go-to-conversations:hover {
+  background: var(--neon-green);
+  color: var(--terminal-bg);
+}
+@media (max-width: 600px) {
+  .go-to-conversations {
+    display: block;
+  }
+}
+
+/* HEADER MOBILE FIXO */
+.mobile-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: #111;
+  color: var(--neon-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-bottom: 1px solid #222;
+}
+.menu-btn {
+  position: absolute;
+  right: 16px;
+  left: unset;
+  background: none;
+  border: none;
+  color: var(--neon-green);
+  font-size: 1.5em;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 101;
+  padding: 0;
+}
+.app-title {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+  .mobile-header {
+    display: flex;
+  }
+  .sidebar {
+    position: fixed;
+    top: 56px; left: -100vw;
+    width: 80vw;
+    height: calc(100vh - 56px);
+    background: #111;
+    box-shadow: 2px 0 16px #0f03;
+    z-index: 200;
+    transition: left 0.3s;
+    border-bottom: none;
+    border-right: 2px solid var(--neon-green);
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar-header, .sidebar-footer {
+    width: 100%;
+    text-align: center;
+  }
+  .conversations-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    width: 100%;
+    padding: 0 5px;
+  }
+  .conversation-item {
+    min-width: 120px;
+    margin: 5px 0;
+    font-size: 1em;
+  }
+  .main-container {
+    width: 100vw;
+    min-width: unset;
+    padding: 0;
+  }
+  .chat-container {
+    width: 100vw;
+    min-width: unset;
+    max-width: 100vw;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+  .chat-messages {
+    margin-top: 56px;
+    margin-bottom: 70px;
+    padding: 16px 4vw 0 4vw;
+    min-height: 60vh;
+    max-height: unset;
+    overflow-y: auto;
+  }
+  .message-wrapper {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+  }
+  .message-wrapper.user {
+    justify-content: flex-end;
+  }
+  .message-wrapper.assistant {
+    justify-content: flex-start;
+  }
+  .message-content {
+    border-radius: 18px;
+    padding: 12px 18px;
+    font-size: 1.1em;
+    background: #181818;
+    color: var(--neon-green);
+    box-shadow: 0 0 8px #0f03;
+    max-width: 80vw;
+    word-break: break-word;
+  }
+  .message-wrapper.user .message-content {
+    background: var(--neon-green);
+    color: #111;
+    box-shadow: 0 0 8px #0ff3;
+  }
+  .input-container {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #111;
+    padding: 4px 4px 6px 4px;
+    box-shadow: 0 -2px 16px #0f03;
+    z-index: 100;
+    border-top: 1px solid #222;
+    flex-direction: row;
+    gap: 6px;
+    min-height: 44px;
+  }
+  #user-input {
+    flex: 1;
+    min-height: 32px;
+    border-radius: 20px;
+    font-size: 1.05em;
+    padding: 7px 12px;
+    border: 1.5px solid var(--neon-green);
+    background: #181818;
+    color: var(--neon-green);
+  }
+  .input-container button {
+    min-width: 38px;
+    max-width: 90px;
+    width: 30vw;
+    border-radius: 20px;
+    font-size: 1em;
+    background: var(--neon-green);
+    color: #111;
+    border: none;
+    box-shadow: 0 0 8px #0f0a;
+    font-weight: bold;
+    transition: background 0.2s;
+    margin-left: 6px;
+    height: 36px;
+    padding: 0 10px;
+  }
+  .input-container button:active {
+    background: var(--neon-blue);
+    color: #fff;
+  }
+  .go-to-conversations {
+    left: unset;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    min-width: 120px;
+    border-radius: 24px;
+    font-size: 1em;
+    padding: 10px 18px;
+    box-shadow: 0 0 10px var(--neon-green);
+  }
+}
+
+.sidebar-header, .sidebar-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.new-chat, .clear-history {
+  width: auto;
+  min-width: 120px;
+  max-width: 90vw;
+  align-self: center;
+  margin: 0;
+  display: inline-block;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .sidebar-header, .sidebar-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .new-chat, .clear-history {
+    width: calc(60vw + 5px);
+    min-width: 95px;
+    max-width: calc(80vw + 5px);
+    align-self: center;
+    margin: 0;
+    display: inline-block;
+    text-align: center;
+  }
+}
+
+/* Espaçamento extra para o botão nova conversa no desktop */
+@media (min-width: 601px) {
+  .sidebar-header {
+    padding-top: 70px;
+    padding-bottom: 20px;
+  }
+  .sidebar-footer {
+    padding-top: 25px;
+    padding-bottom: 25px;
+  }
+  .menu-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .conv-actions {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: static;
+    transition: none;
+    z-index: 2;
+  }
+  .delete-conv {
+    display: inline !important;
+    color: #ff3333 !important;
+    font-size: 1.5em !important;
+    opacity: 1 !important;
+    background: none !important;
+    z-index: 2;
+  }
+  .rename-conv {
+    display: inline !important;
+    color: var(--neon-green) !important;
+    font-size: 1.5em !important;
+    opacity: 1 !important;
+    background: none !important;
+    z-index: 2;
+  }
+}
+
+ 

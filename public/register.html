@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Vortex Chacha</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-form">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <span class="logo-icon">🤖</span>
+                    <h2>VORTEX CHACHA</h2>
+                </div>
+                <p class="auth-subtitle">Crie sua conta</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">
+                        <span class="label-icon">👤</span>
+                        Nome de usuário:
+                    </label>
+                    <input type="text" id="username" name="username" placeholder="Seu nome de usuário" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">
+                        <span class="label-icon">📧</span>
+                        Email:
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <span class="label-icon">🔒</span>
+                        Senha:
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        <span class="label-icon">✅</span>
+                        Confirmar Senha:
+                    </label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Criar Conta</span>
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Já tem uma conta? <a href="/login">Fazer login</a></p>
+                <p><a href="/">← Voltar ao início</a></p>
+            </div>
+            
+            <div id="message" class="message"></div>
+        </div>
+        
+        <div class="auth-info">
+            <div class="info-card">
+                <h3>🚀 Comece Agora</h3>
+                <p>Junte-se ao Vortex Chacha e explore o futuro da IA</p>
+            </div>
+            <div class="info-card">
+                <h3>💡 Aprenda Mais</h3>
+                <p>Acesse recursos exclusivos e tutoriais avançados</p>
+            </div>
+            <div class="info-card">
+                <h3>🔐 Privacidade Total</h3>
+                <p>Seus dados ficam seguros e protegidos</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Verificação de força da senha
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('passwordStrength');
+            let strength = 0;
+            let feedback = '';
+            
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            switch(strength) {
+                case 0:
+                case 1:
+                    feedback = '<span style="color: #ff3333;">Muito fraca</span>';
+                    break;
+                case 2:
+                    feedback = '<span style="color: #ff6666;">Fraca</span>';
+                    break;
+                case 3:
+                    feedback = '<span style="color: #ffaa00;">Média</span>';
+                    break;
+                case 4:
+                    feedback = '<span style="color: #00ff00;">Forte</span>';
+                    break;
+                case 5:
+                    feedback = '<span style="color: #00ff00;">Muito forte</span>';
+                    break;
+            }
+            
+            strengthBar.innerHTML = feedback;
+        }
+        
+        document.getElementById('password').addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const registerBtn = document.getElementById('registerBtn');
+            const btnText = registerBtn.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            
+            // Mostrar loading
+            registerBtn.classList.add('loading');
+            btnText.textContent = 'Criando conta...';
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showMessage('❌ As senhas não coincidem!', 'error');
+                registerBtn.classList.remove('loading');
+                btnText.textContent = originalText;
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('❌ A senha deve ter pelo menos 6 caracteres!', 'error');
+                registerBtn.classList.remove('loading');
+                btnText.textContent = originalText;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('✅ Cadastro realizado com sucesso! Redirecionando...', 'success');
+                    
+                    // Efeito de sucesso
+                    registerBtn.style.background = 'var(--neon-green)';
+                    registerBtn.style.color = 'var(--terminal-bg)';
+                    btnText.textContent = 'Conta Criada!';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 1500);
+                } else {
+                    showMessage(`❌ ${data.error}`, 'error');
+                    // Resetar botão
+                    registerBtn.classList.remove('loading');
+                    btnText.textContent = originalText;
+                }
+            } catch (error) {
+                showMessage('❌ Erro ao fazer cadastro. Tente novamente.', 'error');
+                // Resetar botão
+                registerBtn.classList.remove('loading');
+                btnText.textContent = originalText;
+            }
+        });
+
+        // Efeito de foco nos inputs
+        document.querySelectorAll('.form-group input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+
+        // Validação em tempo real
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#ff3333';
+                this.style.boxShadow = '0 0 10px rgba(255, 51, 51, 0.3)';
+            } else if (confirmPassword) {
+                this.style.borderColor = 'var(--neon-green)';
+                this.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.3)';
+            } else {
+                this.style.borderColor = 'var(--neon-green)';
+                this.style.boxShadow = 'none';
+            }
+        });
+
+        // Animação de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const authForm = document.querySelector('.auth-form');
+            const infoCards = document.querySelectorAll('.info-card');
+            
+            authForm.style.opacity = '0';
+            authForm.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                authForm.style.transition = 'all 0.8s ease';
+                authForm.style.opacity = '1';
+                authForm.style.transform = 'translateY(0)';
+            }, 100);
+            
+            infoCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateX(0)';
+                }, 300 + (index * 200));
+            });
+        });
+    </script>
+</body>
+</html> 

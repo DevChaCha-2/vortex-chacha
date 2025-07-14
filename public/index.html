@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Chacha - Chat IA Especialista em Tecnologia</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 data-text="🤖 VORTEX CHACHA">🤖 VORTEX CHACHA</h1>
+            <p>Seu especialista em tecnologia e programação</p>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-text">SISTEMA ONLINE</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="hero">
+                <h2>Bem-vindo ao Futuro da IA</h2>
+                <p>Conecte-se com o Vortex Chacha, seu assistente especializado em desenvolvimento, programação e soluções tecnológicas avançadas.</p>
+                
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <span class="feature-icon">⚡</span>
+                        <span>Respostas Instantâneas</span>
+                    </div>
+                    <div class="hero-feature">
+                        <span class="feature-icon">🔒</span>
+                        <span>Comunicação Segura</span>
+                    </div>
+                    <div class="hero-feature">
+                        <span class="feature-icon">💻</span>
+                        <span>Código Funcional</span>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <a href="/login" class="btn btn-primary">
+                        <span class="btn-icon">🚀</span>
+                        Fazer Login
+                    </a>
+                    <a href="/register" class="btn btn-secondary">
+                        <span class="btn-icon">⚡</span>
+                        Cadastrar-se
+                    </a>
+                </div>
+                
+                <p class="note">Acesse o sistema e comece sua jornada tecnológica com o Vortex Chacha!</p>
+            </div>
+
+            <div class="features">
+                <h3>Funcionalidades Avançadas</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-large">💻</div>
+                        <h4>Especialista Tech</h4>
+                        <p>Programação, desenvolvimento e arquitetura de sistemas</p>
+                        <div class="feature-tags">
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">Python</span>
+                            <span class="tag">Node.js</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-large">🔒</div>
+                        <h4>Segurança Total</h4>
+                        <p>Autenticação JWT e proteção de dados pessoais</p>
+                        <div class="feature-tags">
+                            <span class="tag">JWT</span>
+                            <span class="tag">HTTPS</span>
+                            <span class="tag">Criptografia</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-large">⚡</div>
+                        <h4>Soluções Práticas</h4>
+                        <p>Código funcional, exemplos e implementações reais</p>
+                        <div class="feature-tags">
+                            <span class="tag">Código</span>
+                            <span class="tag">Exemplos</span>
+                            <span class="tag">Debug</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-large">🎯</div>
+                        <h4>Foco Técnico</h4>
+                        <p>Respostas diretas, precisas e orientadas a resultados</p>
+                        <div class="feature-tags">
+                            <span class="tag">Precisão</span>
+                            <span class="tag">Eficiência</span>
+                            <span class="tag">Resultados</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-stack">
+                <h3>Tecnologias Utilizadas</h3>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <span class="tech-name">Node.js</span>
+                        <span class="tech-desc">Backend robusto</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">Express</span>
+                        <span class="tech-desc">API RESTful</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">SQLite</span>
+                        <span class="tech-desc">Banco de dados</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">OpenAI</span>
+                        <span class="tech-desc">IA avançada</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">JWT</span>
+                        <span class="tech-desc">Autenticação</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">HTML5/CSS3</span>
+                        <span class="tech-desc">Interface moderna</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Vortex Chacha - Sistema de Chat IA</p>
+                <div class="footer-links">
+                    <span>Status: <span class="status-online">ONLINE</span></span>
+                    <span>Versão: 1.0.0</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Efeito de digitação no título
+        const title = document.querySelector('header h1');
+        const originalText = title.textContent;
+        title.textContent = '';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 100);
+            }
+        };
+        
+        setTimeout(typeWriter, 500);
+
+        // Efeito de piscada no status
+        const statusDot = document.querySelector('.status-dot');
+        setInterval(() => {
+            statusDot.style.opacity = statusDot.style.opacity === '0.3' ? '1' : '0.3';
+        }, 1000);
+
+        // Animação de entrada dos cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .tech-item').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html> 
